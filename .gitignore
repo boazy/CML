@@ -1,0 +1,9 @@
+*.log
+*.pid
+
+pids
+logs
+
+node_modules
+lib/
+testjs/

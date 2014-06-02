@@ -1,0 +1,41 @@
+{
+  "author": "Boaz Yaniv (boazyan@gmail.com)",
+  "name": "cml",
+  "description": "lswbxml",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boazy/cml.git"
+  },
+  "main": "./lib/index.js",
+  "dependencies": {
+    "LiveScript": "~1.2.0",
+    "prelude-ls": "~1.0.3"
+  },
+  "devDependencies": {
+    "chai": "~1.8.1",
+    "chai-things": "~0.2.0",
+    "mocha": "~1.17.0",
+    "prettyjson": "~0.10.0",
+    "stream-to-buffer": "~0.1.0",
+    "through2": "~0.4.1",
+    "through2-map": "~1.2.1",
+    "gulp": "~3.5.2",
+    "gulp-bump": "~0.1.5",
+    "gulp-filter": "~0.3.0",
+    "gulp-git": "~0.3.2",
+    "gulp-livescript": "~0.2.0",
+    "gulp-mocha": "~0.4.1",
+    "gulp-util": "~2.2.14",
+    "gulp-conventional-changelog": "~0.1.2",
+    "gulp-clean": "~0.2.4"
+  },
+  "scripts": {
+    "prepublish": "gulp build",
+    "test": "gulp test"
+  },
+  "optionalDependencies": {},
+  "engines": {
+    "node": ">=0.10"
+  }
+}
