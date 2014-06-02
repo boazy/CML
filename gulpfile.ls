@@ -15,7 +15,7 @@ require! {
 paths =
   src: <[src/**/*.ls]>
   tests-src: <[test/**/*.ls]>
-  tests-js: <[testjs/common.js testjs/**/*-test.js]>
+  tests-js: <[testjs/common.js testjs/**/test-*.js]>
 
 gulp-env = gulp-util.env
 
@@ -43,7 +43,7 @@ const BDD_WRAPPER_HEADER = new Buffer '''var _describe;
 
 '''
 
-const BDD_WRAPPER_FOOTER = new Buffer '\n})(_describe);\n'  
+const BDD_WRAPPER_FOOTER = new Buffer '\n})(_describe);\n'
 
 postprocess-tests = ->
   through-map {object-mode: true}, (file)->
@@ -76,7 +76,7 @@ gulp.task \build ->
     .pipe gulp.dest 'lib'
     |> skip-errors-when-watching
 
-tests-filter = gulp-filter \**/*-test.js
+tests-filter = gulp-filter \**/test-*.js
 
 gulp.task \build-tests ->
   gulp.src paths.tests-src
@@ -94,7 +94,7 @@ gulp.task \test <[build build-tests]> ->
 
 gulp.task \watch ->
   watching := true
-  if gulp-env.build-only
+  if gulp-env['build-only']
     gulp.watch paths.src,   <[build]>
   else
     gulp.watch paths.src,       <[test]>

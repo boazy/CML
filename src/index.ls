@@ -16,10 +16,10 @@
     "#@{index}:{@line},#{@column}"
 
 class Token
-EOF = new Token
-EOL = new Token
+export EOF = new Token
+export EOL = new Token
 
-class Scanner
+export class Scanner
   (@input='')->
     @pos = new Position
     @ch = @peekChar!
