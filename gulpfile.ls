@@ -1,4 +1,5 @@
 require! {
+  path
   gulp
   \gulp-clean
   \gulp-util
@@ -11,6 +12,8 @@ require! {
   conventional-changelog: \gulp-conventional-changelog
   git: \gulp-git
 }
+
+{ concat } = require \prelude-ls
 
 paths =
   src: <[src/**/*.ls]>
@@ -47,25 +50,27 @@ const BDD_WRAPPER_FOOTER = new Buffer '\n})(_describe);\n'
 
 postprocess-tests = ->
   through-map {object-mode: true}, (file)->
-    is-stream = typeof file?.contents?.on is \function and typeof file?.contents?.pipe is 'function'
-    is-buffer = file?.contents instanceof Buffer
-    if is-stream
-      file.contents = through do
-        # Per-chunk
-        (chunk, enc, done)->
-          if not @_header_written
-            @_header_written = true
-            @push BDD_WRAPPER_HEADER
-          @push chunk
-          done!
+    if path.basename(file.path) is /test-[^\/]+.js$/
+      # Process only actual tests (not helpers)
+      is-stream = typeof file?.contents?.on is \function and typeof file?.contents?.pipe is 'function'
+      is-buffer = file?.contents instanceof Buffer
+      if is-stream
+        file.contents = through do
+          # Per-chunk
+          (chunk, enc, done)->
+            if not @_header_written
+              @_header_written = true
+              @push BDD_WRAPPER_HEADER
+            @push chunk
+            done!
 
-        # At end
-        (done)->
-          # We only need to write the footer if header was written (i.e. file is not empty)
-          @push BDD_WRAPPER_FOOTER if @_header_written
-          done!
-    else if is-buffer
-      file.contents = Buffer.concat [BDD_WRAPPER_HEADER, file.contents, BDD_WRAPPER_FOOTER]
+          # At end
+          (done)->
+            # We only need to write the footer if header was written (i.e. file is not empty)
+            @push BDD_WRAPPER_FOOTER if @_header_written
+            done!
+      else if is-buffer
+        file.contents = Buffer.concat [BDD_WRAPPER_HEADER, file.contents, BDD_WRAPPER_FOOTER]
     file
 
 gulp.task \default <[test]>
@@ -76,15 +81,11 @@ gulp.task \build ->
     .pipe gulp.dest 'lib'
     |> skip-errors-when-watching
 
-tests-filter = gulp-filter \**/test-*.js
-
 gulp.task \build-tests ->
   gulp.src paths.tests-src
     |> pipe gulp-livescript bare: true
     |> skip-errors-when-watching
-    |> pipe tests-filter
     |> pipe postprocess-tests!
-    |> pipe tests-filter.restore!
     |> pipe gulp.dest 'testjs'
 
 gulp.task \test <[build build-tests]> ->
@@ -97,8 +98,8 @@ gulp.task \watch ->
   if gulp-env['build-only']
     gulp.watch paths.src,   <[build]>
   else
-    gulp.watch paths.src,       <[test]>
-    gulp.watch paths.tests-src, <[test]>
+    allsrc = concat [paths.src, paths.tests-src]
+    gulp.watch allsrc, <[test]>
 
 gulp.task \bump ->
   gulp.src \package.json
